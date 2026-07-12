@@ -1,0 +1,37 @@
+name: bump
+# Dispatched by each CLI's release workflow (see fileworks/<cli>/.github/workflows/release.yml):
+#   gh workflow run bump.yml -R fileworks/homebrew-tap -f formula=immich-export -f version=1.2.3
+on:
+  workflow_dispatch:
+    inputs:
+      formula:
+        description: "Formula name (immich-export | paperless-export)"
+        required: true
+        type: string
+      version:
+        description: "New PyPI version (e.g. 1.2.3)"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Wait for the sdist on PyPI, then rewrite the formula
+        run: |
+          python3 .github/scripts/bump_formula.py \
+            "${{ inputs.formula }}" "${{ inputs.version }}"
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add Formula/
+          git diff --cached --quiet && { echo "Formula already up to date."; exit 0; }
+          git commit -m "chore: bump ${{ inputs.formula }} to ${{ inputs.version }}"
+          git push
