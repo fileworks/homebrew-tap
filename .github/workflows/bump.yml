@@ -20,7 +20,13 @@ jobs:
   bump:
     runs-on: ubuntu-latest
     steps:
+      # The push below lands on `main`, which the branch ruleset protects. The
+      # default GITHUB_TOKEN has no bypass (GitHub refuses to make the Actions
+      # app a bypass actor), so check out with SEMANTIC_RELEASE_TOKEN — a PAT
+      # acting as an org owner, who does have an always-bypass.
       - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.SEMANTIC_RELEASE_TOKEN || secrets.GITHUB_TOKEN }}
 
       - name: Wait for the sdist on PyPI, then rewrite the formula
         run: |
