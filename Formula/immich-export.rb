@@ -5,8 +5,8 @@ class ImmichExport < Formula
 
   desc "Export everything out of Immich into a plain, human-readable folder tree"
   homepage "https://github.com/fileworks/immich-export"
-  url "https://files.pythonhosted.org/packages/source/i/immich-export/immich_export-0.0.0.tar.gz"
-  sha256 "0000000000000000000000000000000000000000000000000000000000000000"
+  url "https://files.pythonhosted.org/packages/00/ec/d8a66b58f5bb5c532c38d0594bbc21b87aa10399d58e76b466b299d1f715/immich_export-0.0.2.tar.gz"
+  sha256 "42970f4d13bd0e3f07d5f6cf776454eac019b157e90dcc0cd923d71ebe741ed5"
   license "MIT"
 
   depends_on "python@3.12"
