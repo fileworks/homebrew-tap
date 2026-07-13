@@ -1,5 +1,5 @@
-# NOTE: url/sha256/version pin are placeholders until the first PyPI release;
-# .github/workflows/bump.yml rewrites them on every release of the CLI.
+# url + sha256 are rewritten by .github/workflows/bump.yml on every release
+# of the CLI — do not edit them by hand.
 class PaperlessExport < Formula
   include Language::Python::Virtualenv
 
@@ -12,10 +12,14 @@ class PaperlessExport < Formula
   depends_on "python@3.12"
 
   def install
-    venv = virtualenv_create(libexec, "python3.12")
+    virtualenv_create(libexec, "python3.12")
+    # virtualenv_create builds the venv with `--without-pip`, so libexec/bin/pip
+    # does not exist and invoking it fails silently. Bootstrap pip first.
+    system libexec/"bin/python", "-m", "ensurepip", "--upgrade"
     # Personal-tap pattern: pip-install the pinned release with its deps
     # instead of vendoring every dependency as a resource block.
-    system libexec/"bin/pip", "install", "--no-cache-dir", "paperless-export[pdf]==#{version}"
+    system libexec/"bin/python", "-m", "pip", "install", "--no-cache-dir",
+           "paperless-export[pdf]==#{version}"
     bin.install_symlink libexec/"bin/paperless-export"
   end
 
