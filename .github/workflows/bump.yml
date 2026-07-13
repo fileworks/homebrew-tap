@@ -16,6 +16,14 @@ on:
 permissions:
   contents: write
 
+# Both CLIs can release at the same time, and each bump commits and pushes to
+# this repo's `main`. Without a queue the second push loses a non-fast-forward
+# race and the formula silently never updates. Never cancel — a cancelled bump
+# means a released version with a stale formula.
+concurrency:
+  group: bump
+  cancel-in-progress: false
+
 jobs:
   bump:
     runs-on: ubuntu-latest
