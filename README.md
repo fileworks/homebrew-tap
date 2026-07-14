@@ -8,8 +8,8 @@ brew install fileworks/tap/immich-export
 brew install fileworks/tap/paperless-export
 ```
 
-*(Not yet usable — the CLIs' first PyPI releases are pending; the formulas
-still carry placeholder `url`/`sha256` values until the first bump.)*
+Both formulas are live at **0.0.3** and are bumped automatically by each CLI's
+release workflow — no manual edit is ever needed here.
 
 ## How it works
 
