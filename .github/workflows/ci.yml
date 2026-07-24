@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: Test bump and queue logic
+        run: python -m unittest discover -s tests -v
+      - name: Compile scripts
+        env:
+          PYTHONPYCACHEPREFIX: ${{ runner.temp }}/pycache
+        run: python -m compileall -q .github/scripts tests
+      - name: Check workflow input safety
+        run: python .github/scripts/check_workflows.py
+
+  homebrew:
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        formula: [immich-export, paperless-export]
+    steps:
+      - uses: actions/checkout@v7
+      - name: Audit and style formula
+        run: |
+          brew tap --custom-remote fileworks/tap "$GITHUB_WORKSPACE"
+          brew audit --strict "fileworks/tap/${{ matrix.formula }}"
+          brew style "fileworks/tap/${{ matrix.formula }}"
+      - name: Install and test formula
+        run: |
+          brew install --build-from-source "fileworks/tap/${{ matrix.formula }}"
+          brew test "fileworks/tap/${{ matrix.formula }}"

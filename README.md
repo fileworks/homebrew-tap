@@ -1,6 +1,6 @@
 # homebrew-tap
 
-The Homebrew tap for the `fileworks` CLIs:
+The unversioned Homebrew tap for the independently released `fileworks` CLIs:
 
 ```sh
 brew tap fileworks/tap
@@ -8,23 +8,43 @@ brew install fileworks/tap/immich-export
 brew install fileworks/tap/paperless-export
 ```
 
-Both formulas are live at **0.0.3** and are bumped automatically by each CLI's
-release workflow — no manual edit is ever needed here.
+Current formula versions:
 
-## How it works
+- `immich-export`: `0.0.3`
+- `paperless-export`: `0.1.0`
 
-- `Formula/*.rb` install each CLI into its own virtualenv, pip-pinned to the
-  exact released version (the personal-tap pattern — no vendored resource
-  blocks to maintain).
-- `.github/workflows/bump.yml` is a `workflow_dispatch` triggered by each CLI's
-  release pipeline (`gh workflow run bump.yml -f formula=<name> -f version=<x.y.z>`).
-  It waits for the sdist to appear on PyPI, rewrites the formula's
-  `url`/`sha256` (`.github/scripts/bump_formula.py`), commits, and pushes.
-  The pip pin uses Ruby's `#{version}` interpolation, which Homebrew derives
-  from the `url` — so it follows automatically.
+## Safe release queue
 
-The repo must be named exactly `homebrew-tap` so `brew tap fileworks/tap`
-resolves.
+Exporter release workflows dispatch a strict formula/version pair plus their
+repository and workflow-run provenance. The tap validates that request, stores
+it as an inspectable GitHub issue labeled `formula-bump`, and only then starts
+the serialized drain.
+
+The drain always scans every open queue record. It accepts only the two known
+formulas, processes versions monotonically, validates the requested PyPI sdist
+and digest, writes the selected formula atomically, and closes a record only
+after its result is present on `main`. Equal versions are idempotent no-ops;
+lower versions are recorded as stale and cannot roll a formula back.
+
+If a drain fails, the issue remains open. Inspect open records with:
+
+```sh
+gh issue list --repo fileworks/homebrew-tap --label formula-bump --state open
+```
+
+After correcting the cause, rerun any recent `bump` workflow from the Actions
+page; its surviving drain scans all open records, not only the triggering one.
+A reviewed manual formula PR is the emergency rollback/update path.
+
+The queue and formulas are covered by pull-request CI. The full downstream
+release chain will remain “tested but not yet observed” until the next warranted
+exporter release exercises it; no synthetic package version is created merely
+to prove automation.
+
+## Local contributor instructions
+
+Create an ignored `CLAUDE.local.md` at the repository root for per-clone paths,
+commands, or preferences. Do not put credentials or other secrets in it.
 
 ## License
 
