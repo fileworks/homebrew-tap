@@ -1,6 +1,5 @@
 name: bump
-# Dispatched by each CLI's release workflow (see fileworks/<cli>/.github/workflows/release.yml):
-#   gh workflow run bump.yml -R fileworks/homebrew-tap -f formula=immich-export -f version=1.2.3
+
 on:
   workflow_dispatch:
     inputs:
@@ -9,43 +8,73 @@ on:
         required: true
         type: string
       version:
-        description: "New PyPI version (e.g. 1.2.3)"
+        description: "Strict PyPI release version (for example 1.2.3)"
+        required: true
+        type: string
+      source_repository:
+        description: "Exporter repository that published the release"
+        required: true
+        type: string
+      source_run:
+        description: "Exporter release workflow run id"
         required: true
         type: string
 
 permissions:
   contents: write
-
-# Both CLIs can release at the same time, and each bump commits and pushes to
-# this repo's `main`. Without a queue the second push loses a non-fast-forward
-# race and the formula silently never updates. Never cancel — a cancelled bump
-# means a released version with a stale formula.
-concurrency:
-  group: bump
-  cancel-in-progress: false
+  issues: write
 
 jobs:
-  bump:
+  intake:
     runs-on: ubuntu-latest
+    outputs:
+      issue: ${{ steps.persist.outputs.issue }}
     steps:
-      # The push below lands on `main`, which the branch ruleset protects. The
-      # default GITHUB_TOKEN has no bypass (GitHub refuses to make the Actions
-      # app a bypass actor), so check out with SEMANTIC_RELEASE_TOKEN — a PAT
-      # acting as an org owner, who does have an always-bypass.
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
+
+      - name: Persist validated request before serialized processing
+        id: persist
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          QUEUE_REPOSITORY: ${{ github.repository }}
+          FORMULA: ${{ inputs.formula }}
+          VERSION: ${{ inputs.version }}
+          SOURCE_REPOSITORY: ${{ inputs.source_repository }}
+          SOURCE_RUN: ${{ inputs.source_run }}
+          INTAKE_RUN: ${{ github.run_id }}
+        run: |
+          issue="$(
+            python3 .github/scripts/formula_queue.py \
+              --repository "$QUEUE_REPOSITORY" \
+              intake \
+              --formula "$FORMULA" \
+              --version "$VERSION" \
+              --source-repository "$SOURCE_REPOSITORY" \
+              --source-run "$SOURCE_RUN" \
+              --intake-run "$INTAKE_RUN"
+          )"
+          printf 'issue=%s\n' "$issue" >> "$GITHUB_OUTPUT"
+
+  drain:
+    needs: intake
+    runs-on: ubuntu-latest
+    concurrency:
+      group: formula-bump-drain
+      cancel-in-progress: false
+    steps:
+      # main is protected; the owner PAT is used only for the reviewed commits.
+      - uses: actions/checkout@v7
         with:
           token: ${{ secrets.SEMANTIC_RELEASE_TOKEN || secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
 
-      - name: Wait for the sdist on PyPI, then rewrite the formula
-        run: |
-          python3 .github/scripts/bump_formula.py \
-            "${{ inputs.formula }}" "${{ inputs.version }}"
-
-      - name: Commit and push
+      - name: Drain every durable open request
+        env:
+          GH_TOKEN: ${{ secrets.SEMANTIC_RELEASE_TOKEN || secrets.GITHUB_TOKEN }}
+          QUEUE_REPOSITORY: ${{ github.repository }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add Formula/
-          git diff --cached --quiet && { echo "Formula already up to date."; exit 0; }
-          git commit -m "chore: bump ${{ inputs.formula }} to ${{ inputs.version }}"
-          git push
+          python3 .github/scripts/formula_queue.py \
+            --repository "$QUEUE_REPOSITORY" \
+            drain
