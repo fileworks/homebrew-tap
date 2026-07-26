@@ -5,8 +5,8 @@ class PaperlessExport < Formula
 
   desc "Paperless-ngx export wrapper + _Steuer/YYYY tax view"
   homepage "https://github.com/fileworks/paperless-export"
-  url "https://files.pythonhosted.org/packages/c0/94/04862a9c5202bd0f7586e9cb605d095d551538233cc775b4e1ee1d1813d3/paperless_export-0.1.0.tar.gz"
-  sha256 "3b2e41476d723710f472c044952697494d79b29e78517cb1c66d16e3116069c4"
+  url "https://files.pythonhosted.org/packages/62/7a/4b00ed7085bd96fac108d28d24f141060876ebf9360f6e0b4e0e5a16a71f/paperless_export-1.0.0.tar.gz"
+  sha256 "0b1337d77506dfa0cf221fd737fb4a46bd3e64b8fc7adcca6ac5db4b7c4a59ea"
   license "MIT"
 
   depends_on "python@3.12"
