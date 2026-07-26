@@ -13,6 +13,10 @@ def main() -> None:
             if marker in shell:
                 raise SystemExit(f"Unsafe workflow expression in shell source: {marker}")
 
+    issue_token = "GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}"
+    if workflow.count(issue_token) != 2:
+        raise SystemExit("Both queue jobs must use the issues-enabled workflow token")
+
 
 if __name__ == "__main__":
     main()

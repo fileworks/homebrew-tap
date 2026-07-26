@@ -70,7 +70,9 @@ jobs:
 
       - name: Drain every durable open request
         env:
-          GH_TOKEN: ${{ secrets.SEMANTIC_RELEASE_TOKEN || secrets.GITHUB_TOKEN }}
+          # Issue lifecycle uses the workflow token's declared issues:write
+          # permission; the owner PAT remains scoped to protected-branch pushes.
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           QUEUE_REPOSITORY: ${{ github.repository }}
         run: |
           git config user.name "github-actions[bot]"
