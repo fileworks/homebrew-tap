@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       formula:
-        description: "Formula name (immich-export | paperless-export)"
+        description: "Formula name (immich-export | paperless-export | unpacksort)"
         required: true
         type: string
       version:

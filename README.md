@@ -1,6 +1,10 @@
+<img src=".github/icon.svg" alt="" width="72" height="72" align="left">
+
 # homebrew-tap
 
-The unversioned Homebrew tap for the independently released `fileworks` CLIs:
+The unversioned Homebrew tap for the independently released `fileworks` CLIs.
+
+## Install
 
 ```sh
 brew tap fileworks/tap
@@ -10,8 +14,23 @@ brew install fileworks/tap/paperless-export
 
 Current formula versions:
 
-- `immich-export`: `0.0.3`
-- `paperless-export`: `0.1.0`
+- `immich-export`: `0.0.4`
+- `paperless-export`: `1.0.0`
+
+## Overview
+
+The Homebrew tap for the fileworks command-line tools. It carries no version of
+its own; each formula tracks the product it installs.
+
+## Formulas
+
+| Formula | Installs | Source |
+|---|---|---|
+| `immich-export` | Immich → local tree exporter | [fileworks/immich-export](https://github.com/fileworks/immich-export) |
+| `paperless-export` | Paperless-ngx exporter and tax view | [fileworks/paperless-export](https://github.com/fileworks/paperless-export) |
+
+Versions are listed above under Install and are bumped automatically by each
+product's release pipeline.
 
 ## Safe release queue
 
@@ -45,6 +64,13 @@ to prove automation.
 
 Create an ignored `CLAUDE.local.md` at the repository root for per-clone paths,
 commands, or preferences. Do not put credentials or other secrets in it.
+
+## Development
+
+Formula `url` and `sha256` lines are written by the release pipeline — see
+[CONTRIBUTING.md](CONTRIBUTING.md) before editing one by hand. Structural
+changes are ordinary pull requests validated with `brew style`, `brew audit
+--strict --online`, and a real install test.
 
 ## License
 

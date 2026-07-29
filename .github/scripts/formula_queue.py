@@ -23,7 +23,9 @@ from bump_formula import (
 )
 
 QUEUE_LABEL = "formula-bump"
-_REPOSITORY_RE = re.compile(r"fileworks/(?P<formula>immich-export|paperless-export)")
+_REPOSITORY_RE = re.compile(
+    r"fileworks/(?P<formula>immich-export|paperless-export|unpacksort)"
+)
 _RUN_ID_RE = re.compile(r"[1-9]\d*")
 
 
@@ -132,6 +134,13 @@ def drain(
     for record in ordered_records(backend.records()):
         try:
             outcome = updater(record.formula, str(record.version))
+            # A formula that does not exist yet needs a reviewed bootstrap PR.
+            # The request is a completed, correctly-handled record — retrying it
+            # would only block every later formula behind a human decision.
+            if outcome is BumpOutcome.BOOTSTRAP_REQUIRED:
+                backend.complete(record, outcome)
+                completed.append((record, outcome))
+                continue
             publish(record, outcome)
             visible = main_version(record.formula)
             if visible < record.version and outcome is not BumpOutcome.STALE:

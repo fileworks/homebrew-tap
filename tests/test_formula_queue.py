@@ -168,3 +168,62 @@ class QueueTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class BootstrapTests(unittest.TestCase):
+    """An unpublished formula must be reported, never invented or retried."""
+
+    def test_missing_formula_reports_bootstrap_instead_of_failing(self) -> None:
+        outcome = bump_formula.update_formula(
+            "unpacksort",
+            "1.0.0",
+            sdist_fetcher=lambda *_args: self.fail("PyPI must not be consulted"),
+        )
+        self.assertIs(outcome, bump_formula.BumpOutcome.BOOTSTRAP_REQUIRED)
+
+    def test_bootstrap_request_completes_without_blocking_later_formulas(self) -> None:
+        backend = FakeQueue(
+            [
+                record(1, "unpacksort", "1.0.0", "11"),
+                record(2, "immich-export", "1.3.0", "12"),
+            ]
+        )
+        published: list[str] = []
+
+        def updater(formula: str, _version: str) -> bump_formula.BumpOutcome:
+            if formula == "unpacksort":
+                return bump_formula.BumpOutcome.BOOTSTRAP_REQUIRED
+            return bump_formula.BumpOutcome.UPDATED
+
+        def publish(item: formula_queue.QueueRecord, _outcome: object) -> None:
+            published.append(item.formula)
+
+        completed = formula_queue.drain(
+            backend,
+            updater=updater,
+            publish=publish,
+            main_version=lambda _formula: bump_formula.ReleaseVersion.parse("1.3.0"),
+        )
+
+        self.assertEqual(
+            [(item.formula, outcome.value) for item, outcome in completed],
+            [("immich-export", "updated"), ("unpacksort", "bootstrap_required")],
+        )
+        self.assertEqual(published, ["immich-export"])
+        self.assertEqual(backend.failures, [])
+        self.assertEqual(backend.open, [])
+
+    def test_unpacksort_release_provenance_is_accepted(self) -> None:
+        item = record(7, "unpacksort", "1.0.0", "42")
+        self.assertEqual(item.formula, "unpacksort")
+        with self.assertRaises(formula_queue.QueueError):
+            formula_queue.QueueRecord.from_payload(
+                8,
+                {
+                    "formula": "unpacksort",
+                    "version": "1.0.0",
+                    "source_repository": "fileworks/immich-export",
+                    "source_run": "42",
+                    "intake_run": "1008",
+                },
+            )

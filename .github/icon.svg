@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" role="img" aria-label="homebrew-tap">
+  <title>homebrew-tap — a tap feeding several outlets</title>
+  <rect width="24" height="24" rx="4" fill="#FAF7F2"/>
+  <g fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M5.00,2.00 H19.00 A3.00,3.00 0 0 1 22.00,5.00 V19.00 A3.00,3.00 0 0 1 19.00,22.00 H5.00 A3.00,3.00 0 0 1 2.00,19.00 V5.00 A3.00,3.00 0 0 1 5.00,2.00 Z" stroke="#14110F"/>
+    <path d="M5.00,6.50 H13.00 A1.80,1.80 0 0 1 14.80,8.30 V10.50" stroke="#14110F"/>
+    <path d="M7.50,4.50 L7.50,6.50" stroke="#14110F"/>
+    <path d="M14.80,12.00 L16.20,14.40 A1.70,1.70 0 1 1 13.40,14.40 Z" stroke="#C2410C"/>
+    <path d="M6.00,18.50 L18.00,18.50" stroke="#C2410C"/>
+  </g>
+</svg>

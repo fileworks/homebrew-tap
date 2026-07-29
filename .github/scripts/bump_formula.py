@@ -23,6 +23,7 @@ PYPI_HOST = "files.pythonhosted.org"
 FORMULAS: Mapping[str, Path] = {
     "immich-export": Path("Formula/immich-export.rb"),
     "paperless-export": Path("Formula/paperless-export.rb"),
+    "unpacksort": Path("Formula/unpacksort.rb"),
 }
 _VERSION_RE = re.compile(
     r"(?P<major>0|[1-9]\d*)\.(?P<minor>0|[1-9]\d*)\.(?P<patch>0|[1-9]\d*)"
@@ -63,6 +64,10 @@ class BumpOutcome(str, Enum):
     UPDATED = "updated"
     EQUAL = "equal"
     STALE = "stale"
+    #: The formula is supported but has never been created. Bootstrapping a
+    #: tap entry pins resources and a license and must be reviewed by a human,
+    #: so an automatic bump reports the need instead of inventing a formula.
+    BOOTSTRAP_REQUIRED = "bootstrap_required"
 
 
 def validate_formula(value: str) -> str:
@@ -216,7 +221,7 @@ def update_formula(
     requested = ReleaseVersion.parse(version_text)
     formula_path = FORMULAS[package]
     if not formula_path.is_file():
-        raise BumpError(f"Known formula is missing: {formula_path}")
+        return BumpOutcome.BOOTSTRAP_REQUIRED
     current = read_formula_version(formula_path, package)
     if requested == current:
         return BumpOutcome.EQUAL
