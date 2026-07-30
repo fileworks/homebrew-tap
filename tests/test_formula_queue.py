@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import json
 import unittest
+from unittest import mock
 from collections.abc import Callable
 
 from _support import import_scripts
@@ -256,3 +258,59 @@ class BootstrapTests(unittest.TestCase):
                     "intake_run": "1008",
                 },
             )
+
+
+class HistoricalSchemaTests(unittest.TestCase):
+    """The queue outlives its own schema, so it must read its own history."""
+
+    def _issues(self, state: str) -> list[list[dict[str, object]]]:
+        # Issue 9 is real: a closed bump from before lock_url/lock_sha256 existed.
+        historical = {
+            "number": 9,
+            "state": "closed",
+            "body": json.dumps(
+                {
+                    "formula": "paperless-export",
+                    "intake_run": "30197512308",
+                    "source_repository": "fileworks/paperless-export",
+                    "source_run": "30195659182",
+                    "version": "1.0.0",
+                }
+            ),
+        }
+        current = {
+            "number": 10,
+            "state": "open",
+            "body": json.dumps(
+                {
+                    "formula": "immich-export",
+                    "version": "0.1.0",
+                    "source_repository": "fileworks/immich-export",
+                    "source_run": "1",
+                    "lock_url": lock_url("immich-export"),
+                    "lock_sha256": LOCK_SHA256,
+                    "intake_run": "2",
+                }
+            ),
+        }
+        if state == "open":
+            return [[current]]
+        return [[historical, current]]
+
+    def test_a_closed_entry_from_an_older_schema_is_skipped(self) -> None:
+        backend = formula_queue.GitHubIssueQueue("fileworks/homebrew-tap")
+        with mock.patch.object(
+            formula_queue, "_run_json", lambda _argv: self._issues("all")
+        ):
+            records = backend.records(state="all")
+
+        # Skipped, not fatal: reading it was what broke every bump after 1.0.0.
+        self.assertEqual([record.issue for record in records], [10])
+
+    def test_an_open_entry_that_cannot_be_parsed_still_raises(self) -> None:
+        # Pending work nobody can process must not be silently dropped.
+        broken = [[{"number": 11, "state": "open", "body": json.dumps({"formula": "x"})}]]
+        backend = formula_queue.GitHubIssueQueue("fileworks/homebrew-tap")
+        with mock.patch.object(formula_queue, "_run_json", lambda _argv: broken):
+            with self.assertRaises(formula_queue.QueueError):
+                backend.records(state="all")
