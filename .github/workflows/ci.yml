@@ -56,7 +56,18 @@ jobs:
           brew tap --custom-remote fileworks/tap "$GITHUB_WORKSPACE"
           brew audit --strict "fileworks/tap/${{ matrix.formula }}"
           brew style "fileworks/tap/${{ matrix.formula }}"
+      # macOS only, deliberately. There is no Linux bottle for a tap formula, so
+      # --build-from-source pulls rust, llvm and three Pythons, and the runner
+      # denies bubblewrap's uid map inside Homebrew's build sandbox. That leg has
+      # never succeeded; it was written on a branch that was never merged.
+      #
+      # What Linux still covers: `brew audit --strict` and `brew style` above,
+      # which are what actually validate formula correctness and are
+      # platform-independent. What it no longer claims to cover: an end-to-end
+      # Linux install. The pinned linux-arm64 and linux-x86_64 wheels are still
+      # asserted by tests/test_bump_formula.py across all four targets.
       - name: Install and test formula
+        if: runner.os == 'macOS'
         env:
           HOMEBREW_NO_AUTO_UPDATE: "1"
           PIP_DISABLE_PIP_VERSION_CHECK: "1"
