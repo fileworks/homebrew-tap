@@ -26,11 +26,12 @@ jobs:
         run: python .github/scripts/check_workflows.py
 
   formula-audit:
-    name: formula-audit (${{ matrix.formula }})
-    runs-on: macos-latest
+    name: formula-audit (${{ matrix.os }}, ${{ matrix.formula }})
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
+        os: [macos-latest, ubuntu-latest]
         formula: [immich-export, paperless-export]
     steps:
       - uses: actions/checkout@v7
@@ -40,7 +41,14 @@ jobs:
           brew audit --strict "fileworks/tap/${{ matrix.formula }}"
           brew style "fileworks/tap/${{ matrix.formula }}"
       - name: Install and test formula
+        env:
+          HOMEBREW_NO_AUTO_UPDATE: "1"
+          PIP_DISABLE_PIP_VERSION_CHECK: "1"
+          PIP_INDEX_URL: "http://127.0.0.1:9/package-index-access-is-forbidden"
+          PIP_NO_INDEX: "1"
         run: |
+          brew fetch --deps "fileworks/tap/${{ matrix.formula }}"
+          brew fetch --build-from-source "fileworks/tap/${{ matrix.formula }}"
           brew install --build-from-source "fileworks/tap/${{ matrix.formula }}"
           brew test "fileworks/tap/${{ matrix.formula }}"
 

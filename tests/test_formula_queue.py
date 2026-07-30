@@ -10,6 +10,15 @@ import_scripts()
 import bump_formula
 import formula_queue
 
+LOCK_SHA256 = "a" * 64
+
+
+def lock_url(formula: str) -> str:
+    return (
+        f"https://raw.githubusercontent.com/fileworks/{formula}/"
+        f"{'b' * 40}/uv.lock"
+    )
+
 
 class FakeQueue:
     def __init__(self, records: list[formula_queue.QueueRecord] | None = None) -> None:
@@ -28,6 +37,8 @@ class FakeQueue:
             version=record.version,
             source_repository=record.source_repository,
             source_run=record.source_run,
+            lock_url=record.lock_url,
+            lock_sha256=record.lock_sha256,
             intake_run=record.intake_run,
         )
         self.open.append(created)
@@ -54,6 +65,8 @@ def record(issue: int, formula: str, version: str, run: str) -> formula_queue.Qu
             "version": version,
             "source_repository": f"fileworks/{formula}",
             "source_run": run,
+            "lock_url": lock_url(formula),
+            "lock_sha256": LOCK_SHA256,
             "intake_run": str(1000 + issue),
         },
     )
@@ -67,6 +80,8 @@ class QueueTests(unittest.TestCase):
             "version": "1.2.3",
             "source_repository": "fileworks/immich-export",
             "source_run": "88",
+            "lock_url": lock_url("immich-export"),
+            "lock_sha256": LOCK_SHA256,
             "intake_run": "99",
         }
         first = formula_queue.persist_request(backend, **arguments)
@@ -104,7 +119,12 @@ class QueueTests(unittest.TestCase):
             "paperless-export": bump_formula.ReleaseVersion.parse("1.0.0"),
         }
 
-        def updater(formula: str, version: str) -> bump_formula.BumpOutcome:
+        def updater(
+            formula: str,
+            version: str,
+            _lock_url: str,
+            _lock_sha256: str,
+        ) -> bump_formula.BumpOutcome:
             requested = bump_formula.ReleaseVersion.parse(version)
             outcome = (
                 bump_formula.BumpOutcome.EQUAL
@@ -177,6 +197,8 @@ class BootstrapTests(unittest.TestCase):
         outcome = bump_formula.update_formula(
             "unpacksort",
             "1.0.0",
+            lock_url=lock_url("unpacksort"),
+            lock_sha256=LOCK_SHA256,
             sdist_fetcher=lambda *_args: self.fail("PyPI must not be consulted"),
         )
         self.assertIs(outcome, bump_formula.BumpOutcome.BOOTSTRAP_REQUIRED)
@@ -190,7 +212,12 @@ class BootstrapTests(unittest.TestCase):
         )
         published: list[str] = []
 
-        def updater(formula: str, _version: str) -> bump_formula.BumpOutcome:
+        def updater(
+            formula: str,
+            _version: str,
+            _lock_url: str,
+            _lock_sha256: str,
+        ) -> bump_formula.BumpOutcome:
             if formula == "unpacksort":
                 return bump_formula.BumpOutcome.BOOTSTRAP_REQUIRED
             return bump_formula.BumpOutcome.UPDATED
@@ -224,6 +251,8 @@ class BootstrapTests(unittest.TestCase):
                     "version": "1.0.0",
                     "source_repository": "fileworks/immich-export",
                     "source_run": "42",
+                    "lock_url": lock_url("unpacksort"),
+                    "lock_sha256": LOCK_SHA256,
                     "intake_run": "1008",
                 },
             )
