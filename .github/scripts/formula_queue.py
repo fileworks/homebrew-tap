@@ -175,6 +175,27 @@ def drain(
             completed.append((record, outcome))
         except Exception as exc:  # noqa: BLE001 - retain every failed record for retry
             message = str(exc).replace("\n", " ")[:500]
+            # A failure that can never succeed must not be retried forever.
+            # immich-export 0.1.0 shipped with a lagging uv.lock, so its bump was
+            # permanently impossible — the tagged lock is immutable history — and
+            # that one record failed every drain, blocking every later formula
+            # while the formula itself had already moved on to 0.1.1.
+            #
+            # Only when main is strictly ahead: an equal version is a legitimate
+            # replay, and a formula that does not exist yet is a bootstrap, not a
+            # superseded request.
+            try:
+                superseded = main_version(record.formula) > record.version
+            except Exception:  # noqa: BLE001 - unknown formula is not superseded
+                superseded = False
+            if superseded:
+                backend.comment_failure(
+                    record,
+                    f"Superseded: main already carries a newer version. {message}",
+                )
+                backend.complete(record, BumpOutcome.STALE)
+                completed.append((record, BumpOutcome.STALE))
+                continue
             backend.comment_failure(record, message)
             failures.append(f"#{record.issue}: {message}")
     if failures:

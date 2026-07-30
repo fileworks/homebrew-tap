@@ -314,3 +314,51 @@ class HistoricalSchemaTests(unittest.TestCase):
         with mock.patch.object(formula_queue, "_run_json", lambda _argv: broken):
             with self.assertRaises(formula_queue.QueueError):
                 backend.records(state="all")
+
+
+class SupersededRequestTests(unittest.TestCase):
+    """A request that can never succeed must not block the queue forever."""
+
+    def _drain(self, main: str, requested: str, later: bool = True):
+        records = [record(1, "immich-export", requested, "11")]
+        if later:
+            records.append(record(2, "paperless-export", "2.0.0", "12"))
+        backend = FakeQueue(records)
+        published: list[str] = []
+
+        def updater(formula: str, *_args: str) -> bump_formula.BumpOutcome:
+            if formula == "immich-export":
+                raise bump_formula.BumpError(
+                    "uv.lock project version does not match the requested release"
+                )
+            return bump_formula.BumpOutcome.UPDATED
+
+        def main_version(formula: str) -> bump_formula.ReleaseVersion:
+            return bump_formula.ReleaseVersion.parse(
+                main if formula == "immich-export" else "2.0.0"
+            )
+
+        completed = formula_queue.drain(
+            backend,
+            updater=updater,
+            publish=lambda item, _outcome: published.append(item.formula),
+            main_version=main_version,
+        )
+        return completed, published
+
+    def test_a_permanently_impossible_request_is_closed_as_stale(self) -> None:
+        # The real case: immich-export 0.1.0 could never bump, because the tagged
+        # uv.lock said 0.0.4 and a tag is immutable. main had moved to 0.1.1.
+        completed, published = self._drain(main="0.1.1", requested="0.1.0")
+
+        outcomes = {item.formula: outcome.value for item, outcome in completed}
+        self.assertEqual(outcomes["immich-export"], "stale")
+        # And it no longer blocks the formula queued behind it.
+        self.assertEqual(outcomes["paperless-export"], "updated")
+        self.assertEqual(published, ["paperless-export"])
+
+    def test_a_failure_that_is_not_superseded_still_blocks_and_retries(self) -> None:
+        # Main is behind the request, so this is a real failure to fix, not
+        # history to discard. Losing it would silently drop a pending release.
+        with self.assertRaises(formula_queue.QueueError):
+            self._drain(main="0.0.4", requested="0.1.0", later=False)
