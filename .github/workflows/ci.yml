@@ -35,6 +35,22 @@ jobs:
         formula: [immich-export, paperless-export]
     steps:
       - uses: actions/checkout@v7
+      # The Ubuntu image ships Homebrew but does not put it on PATH, so `brew`
+      # was simply not found and this job had never once run: it was added on a
+      # branch that was never merged. Reported rather than silently dropped, so a
+      # future image change that removes Homebrew fails loudly here.
+      - name: Put Homebrew on PATH
+        run: |
+          if command -v brew >/dev/null; then
+            echo "brew already on PATH: $(command -v brew)"
+          elif [ -x /home/linuxbrew/.linuxbrew/bin/brew ]; then
+            # PATH only: brew derives its prefix from its own location, and
+            # `brew shellenv` emits `export KEY=value`, which GITHUB_ENV rejects.
+            echo /home/linuxbrew/.linuxbrew/bin >> "$GITHUB_PATH"
+          else
+            echo "::error::Homebrew is not available on this runner image"
+            exit 1
+          fi
       - name: Audit and style formula
         run: |
           brew tap --custom-remote fileworks/tap "$GITHUB_WORKSPACE"
