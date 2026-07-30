@@ -222,13 +222,27 @@ class GitHubIssueQueue:
         for issue in issues:
             if not isinstance(issue, Mapping) or "pull_request" in issue:
                 continue
+            number = int(issue["number"])
             try:
                 payload = json.loads(str(issue.get("body", "")))
             except json.JSONDecodeError as exc:
-                raise QueueError(f"Issue {issue.get('number')} has invalid JSON") from exc
+                raise QueueError(f"Issue {number} has invalid JSON") from exc
             if not isinstance(payload, Mapping):
-                raise QueueError(f"Issue {issue.get('number')} body is not an object")
-            records.append(QueueRecord.from_payload(int(issue["number"]), payload))
+                raise QueueError(f"Issue {number} body is not an object")
+            try:
+                records.append(QueueRecord.from_payload(number, payload))
+            except QueueError:
+                # A closed entry written by an older schema is history, not work.
+                # The idempotency scan reads state="all", so refusing to parse
+                # one permanently broke every future bump: issue 9 predates the
+                # lock_url/lock_sha256 fields and is closed, and it was re-read
+                # and re-rejected on every single intake.
+                #
+                # An *open* entry is different — that is pending work nobody can
+                # process, so it still raises.
+                if str(issue.get("state", "")).lower() == "closed":
+                    continue
+                raise
         return records
 
     def _ensure_label(self) -> None:
