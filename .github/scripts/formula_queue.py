@@ -20,10 +20,13 @@ from bump_formula import (
     read_formula_version,
     update_formula,
     validate_formula,
+    validate_lock_provenance,
 )
 
 QUEUE_LABEL = "formula-bump"
-_REPOSITORY_RE = re.compile(r"fileworks/(?P<formula>immich-export|paperless-export)")
+_REPOSITORY_RE = re.compile(
+    r"fileworks/(?P<formula>immich-export|paperless-export|unpacksort)"
+)
 _RUN_ID_RE = re.compile(r"[1-9]\d*")
 
 
@@ -38,6 +41,8 @@ class QueueRecord:
     version: ReleaseVersion
     source_repository: str
     source_run: str
+    lock_url: str
+    lock_sha256: str
     intake_run: str
 
     @classmethod
@@ -47,6 +52,8 @@ class QueueRecord:
             "version",
             "source_repository",
             "source_run",
+            "lock_url",
+            "lock_sha256",
             "intake_run",
         }
         if set(payload) != expected:
@@ -60,12 +67,20 @@ class QueueRecord:
         intake_run = str(payload["intake_run"])
         if _RUN_ID_RE.fullmatch(source_run) is None or _RUN_ID_RE.fullmatch(intake_run) is None:
             raise QueueError(f"Issue {issue} has an invalid run id")
+        lock_url = str(payload["lock_url"])
+        lock_sha256 = str(payload["lock_sha256"])
+        try:
+            validate_lock_provenance(formula, lock_url, lock_sha256)
+        except BumpError as exc:
+            raise QueueError(f"Issue {issue} has invalid lock provenance: {exc}") from exc
         return cls(
             issue=issue,
             formula=formula,
             version=ReleaseVersion.parse(str(payload["version"])),
             source_repository=source_repository,
             source_run=source_run,
+            lock_url=lock_url,
+            lock_sha256=lock_sha256,
             intake_run=intake_run,
         )
 
@@ -75,6 +90,8 @@ class QueueRecord:
             "version": str(self.version),
             "source_repository": self.source_repository,
             "source_run": self.source_run,
+            "lock_url": self.lock_url,
+            "lock_sha256": self.lock_sha256,
             "intake_run": self.intake_run,
         }
 
@@ -100,6 +117,8 @@ def persist_request(
     version: str,
     source_repository: str,
     source_run: str,
+    lock_url: str,
+    lock_sha256: str,
     intake_run: str,
 ) -> int:
     candidate = QueueRecord.from_payload(
@@ -109,6 +128,8 @@ def persist_request(
             "version": version,
             "source_repository": source_repository,
             "source_run": source_run,
+            "lock_url": lock_url,
+            "lock_sha256": lock_sha256,
             "intake_run": intake_run,
         },
     )
@@ -123,7 +144,7 @@ def persist_request(
 def drain(
     backend: QueueBackend,
     *,
-    updater: Callable[[str, str], BumpOutcome],
+    updater: Callable[[str, str, str, str], BumpOutcome],
     publish: Callable[[QueueRecord, BumpOutcome], None],
     main_version: Callable[[str], ReleaseVersion],
 ) -> list[tuple[QueueRecord, BumpOutcome]]:
@@ -131,7 +152,19 @@ def drain(
     failures: list[str] = []
     for record in ordered_records(backend.records()):
         try:
-            outcome = updater(record.formula, str(record.version))
+            outcome = updater(
+                record.formula,
+                str(record.version),
+                record.lock_url,
+                record.lock_sha256,
+            )
+            # A formula that does not exist yet needs a reviewed bootstrap PR.
+            # The request is a completed, correctly-handled record — retrying it
+            # would only block every later formula behind a human decision.
+            if outcome is BumpOutcome.BOOTSTRAP_REQUIRED:
+                backend.complete(record, outcome)
+                completed.append((record, outcome))
+                continue
             publish(record, outcome)
             visible = main_version(record.formula)
             if visible < record.version and outcome is not BumpOutcome.STALE:
@@ -305,6 +338,8 @@ def main(argv: list[str] | None = None) -> int:
     intake.add_argument("--version", required=True)
     intake.add_argument("--source-repository", required=True)
     intake.add_argument("--source-run", required=True)
+    intake.add_argument("--lock-url", required=True)
+    intake.add_argument("--lock-sha256", required=True)
     intake.add_argument("--intake-run", required=True)
     subparsers.add_parser("drain")
     args = parser.parse_args(argv)
@@ -317,13 +352,20 @@ def main(argv: list[str] | None = None) -> int:
                 version=args.version,
                 source_repository=args.source_repository,
                 source_run=args.source_run,
+                lock_url=args.lock_url,
+                lock_sha256=args.lock_sha256,
                 intake_run=args.intake_run,
             )
             print(issue)
         else:
             drained = drain(
                 backend,
-                updater=update_formula,
+                updater=lambda formula, version, lock_url, lock_sha256: update_formula(
+                    formula,
+                    version,
+                    lock_url=lock_url,
+                    lock_sha256=lock_sha256,
+                ),
                 publish=_publish,
                 main_version=_main_version,
             )

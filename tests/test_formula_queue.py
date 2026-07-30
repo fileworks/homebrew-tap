@@ -10,6 +10,15 @@ import_scripts()
 import bump_formula
 import formula_queue
 
+LOCK_SHA256 = "a" * 64
+
+
+def lock_url(formula: str) -> str:
+    return (
+        f"https://raw.githubusercontent.com/fileworks/{formula}/"
+        f"{'b' * 40}/uv.lock"
+    )
+
 
 class FakeQueue:
     def __init__(self, records: list[formula_queue.QueueRecord] | None = None) -> None:
@@ -28,6 +37,8 @@ class FakeQueue:
             version=record.version,
             source_repository=record.source_repository,
             source_run=record.source_run,
+            lock_url=record.lock_url,
+            lock_sha256=record.lock_sha256,
             intake_run=record.intake_run,
         )
         self.open.append(created)
@@ -54,6 +65,8 @@ def record(issue: int, formula: str, version: str, run: str) -> formula_queue.Qu
             "version": version,
             "source_repository": f"fileworks/{formula}",
             "source_run": run,
+            "lock_url": lock_url(formula),
+            "lock_sha256": LOCK_SHA256,
             "intake_run": str(1000 + issue),
         },
     )
@@ -67,6 +80,8 @@ class QueueTests(unittest.TestCase):
             "version": "1.2.3",
             "source_repository": "fileworks/immich-export",
             "source_run": "88",
+            "lock_url": lock_url("immich-export"),
+            "lock_sha256": LOCK_SHA256,
             "intake_run": "99",
         }
         first = formula_queue.persist_request(backend, **arguments)
@@ -104,7 +119,12 @@ class QueueTests(unittest.TestCase):
             "paperless-export": bump_formula.ReleaseVersion.parse("1.0.0"),
         }
 
-        def updater(formula: str, version: str) -> bump_formula.BumpOutcome:
+        def updater(
+            formula: str,
+            version: str,
+            _lock_url: str,
+            _lock_sha256: str,
+        ) -> bump_formula.BumpOutcome:
             requested = bump_formula.ReleaseVersion.parse(version)
             outcome = (
                 bump_formula.BumpOutcome.EQUAL
@@ -168,3 +188,71 @@ class QueueTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class BootstrapTests(unittest.TestCase):
+    """An unpublished formula must be reported, never invented or retried."""
+
+    def test_missing_formula_reports_bootstrap_instead_of_failing(self) -> None:
+        outcome = bump_formula.update_formula(
+            "unpacksort",
+            "1.0.0",
+            lock_url=lock_url("unpacksort"),
+            lock_sha256=LOCK_SHA256,
+            sdist_fetcher=lambda *_args: self.fail("PyPI must not be consulted"),
+        )
+        self.assertIs(outcome, bump_formula.BumpOutcome.BOOTSTRAP_REQUIRED)
+
+    def test_bootstrap_request_completes_without_blocking_later_formulas(self) -> None:
+        backend = FakeQueue(
+            [
+                record(1, "unpacksort", "1.0.0", "11"),
+                record(2, "immich-export", "1.3.0", "12"),
+            ]
+        )
+        published: list[str] = []
+
+        def updater(
+            formula: str,
+            _version: str,
+            _lock_url: str,
+            _lock_sha256: str,
+        ) -> bump_formula.BumpOutcome:
+            if formula == "unpacksort":
+                return bump_formula.BumpOutcome.BOOTSTRAP_REQUIRED
+            return bump_formula.BumpOutcome.UPDATED
+
+        def publish(item: formula_queue.QueueRecord, _outcome: object) -> None:
+            published.append(item.formula)
+
+        completed = formula_queue.drain(
+            backend,
+            updater=updater,
+            publish=publish,
+            main_version=lambda _formula: bump_formula.ReleaseVersion.parse("1.3.0"),
+        )
+
+        self.assertEqual(
+            [(item.formula, outcome.value) for item, outcome in completed],
+            [("immich-export", "updated"), ("unpacksort", "bootstrap_required")],
+        )
+        self.assertEqual(published, ["immich-export"])
+        self.assertEqual(backend.failures, [])
+        self.assertEqual(backend.open, [])
+
+    def test_unpacksort_release_provenance_is_accepted(self) -> None:
+        item = record(7, "unpacksort", "1.0.0", "42")
+        self.assertEqual(item.formula, "unpacksort")
+        with self.assertRaises(formula_queue.QueueError):
+            formula_queue.QueueRecord.from_payload(
+                8,
+                {
+                    "formula": "unpacksort",
+                    "version": "1.0.0",
+                    "source_repository": "fileworks/immich-export",
+                    "source_run": "42",
+                    "lock_url": lock_url("unpacksort"),
+                    "lock_sha256": LOCK_SHA256,
+                    "intake_run": "1008",
+                },
+            )

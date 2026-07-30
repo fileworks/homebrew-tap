@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       formula:
-        description: "Formula name (immich-export | paperless-export)"
+        description: "Formula name (immich-export | paperless-export | unpacksort)"
         required: true
         type: string
       version:
@@ -17,6 +17,14 @@ on:
         type: string
       source_run:
         description: "Exporter release workflow run id"
+        required: true
+        type: string
+      lock_url:
+        description: "Immutable raw GitHub URL for the released uv.lock"
+        required: true
+        type: string
+      lock_sha256:
+        description: "SHA-256 digest of the released uv.lock"
         required: true
         type: string
 
@@ -41,6 +49,8 @@ jobs:
           VERSION: ${{ inputs.version }}
           SOURCE_REPOSITORY: ${{ inputs.source_repository }}
           SOURCE_RUN: ${{ inputs.source_run }}
+          LOCK_URL: ${{ inputs.lock_url }}
+          LOCK_SHA256: ${{ inputs.lock_sha256 }}
           INTAKE_RUN: ${{ github.run_id }}
         run: |
           issue="$(
@@ -51,6 +61,8 @@ jobs:
               --version "$VERSION" \
               --source-repository "$SOURCE_REPOSITORY" \
               --source-run "$SOURCE_RUN" \
+              --lock-url "$LOCK_URL" \
+              --lock-sha256 "$LOCK_SHA256" \
               --intake-run "$INTAKE_RUN"
           )"
           printf 'issue=%s\n' "$issue" >> "$GITHUB_OUTPUT"
