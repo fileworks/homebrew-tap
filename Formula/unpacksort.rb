@@ -335,6 +335,20 @@ class Unpacksort < Formula
   test do
     assert_match version.to_s, shell_output("#{bin}/unpacksort --version")
     assert_match "Usage", shell_output("#{bin}/unpacksort --help")
+
+    (testpath/"source").mkpath
+    (testpath/"source/hello.txt").write("hello from the formula test\n")
+    system "tar", "-czf", testpath/"fixture.tar.gz",
+           "-C", testpath/"source", "hello.txt"
+    system bin/"unpacksort", testpath/"fixture.tar.gz", testpath/"out"
+
+    extracted = Dir.glob("#{testpath}/out/**/hello.txt").first
+    refute_nil extracted, "unpacksort did not extract the fixture"
+    assert_equal "hello from the formula test\n", File.read(extracted)
+    manifest = testpath/"out/manifest.jsonl"
+    assert_path_exists manifest
+    assert_match "hello.txt", manifest.read
+
     script = <<~PYTHON
       import importlib.metadata
       import json
