@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import json
+import tempfile
 import unittest
-from unittest import mock
 from collections.abc import Callable
+from pathlib import Path
+from unittest import mock
 
 from _support import import_scripts
 
@@ -196,13 +198,20 @@ class BootstrapTests(unittest.TestCase):
     """An unpublished formula must be reported, never invented or retried."""
 
     def test_missing_formula_reports_bootstrap_instead_of_failing(self) -> None:
-        outcome = bump_formula.update_formula(
-            "unpacksort",
-            "1.0.0",
-            lock_url=lock_url("unpacksort"),
-            lock_sha256=LOCK_SHA256,
-            sdist_fetcher=lambda *_args: self.fail("PyPI must not be consulted"),
-        )
+        with tempfile.TemporaryDirectory() as directory:
+            missing = Path(directory) / "unpacksort.rb"
+            with mock.patch.dict(
+                bump_formula.FORMULAS,
+                {**bump_formula.FORMULAS, "unpacksort": missing},
+                clear=True,
+            ):
+                outcome = bump_formula.update_formula(
+                    "unpacksort",
+                    "1.0.0",
+                    lock_url=lock_url("unpacksort"),
+                    lock_sha256=LOCK_SHA256,
+                    sdist_fetcher=lambda *_args: self.fail("PyPI must not be consulted"),
+                )
         self.assertIs(outcome, bump_formula.BumpOutcome.BOOTSTRAP_REQUIRED)
 
     def test_bootstrap_request_completes_without_blocking_later_formulas(self) -> None:
