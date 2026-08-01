@@ -495,6 +495,30 @@ def render_formula(
             "  test do",
             '    assert_match version.to_s, shell_output("#{bin}/' + package + ' --version")',
             '    assert_match "Usage", shell_output("#{bin}/' + package + ' --help")',
+        ]
+    )
+    if package == "unpacksort":
+        lines.extend(
+            [
+                "",
+                '    (testpath/"fixture").mkpath',
+                '    (testpath/"fixture/hello.txt").write("hello from the formula test\\n")',
+                '    (testpath/"source").mkpath',
+                '    system "tar", "-czf", testpath/"source/fixture.tar.gz",',
+                '           "-C", testpath/"fixture", "hello.txt"',
+                '    system bin/"unpacksort", testpath/"source", testpath/"out"',
+                "",
+                '    extracted = Dir.glob("#{testpath}/out/**/hello.txt").first',
+                '    refute_nil extracted, "unpacksort did not extract the fixture"',
+                '    assert_equal "hello from the formula test\\n", File.read(extracted)',
+                '    manifest = testpath/"out/manifest.jsonl"',
+                '    assert_path_exists manifest',
+                '    assert_match "hello.txt", manifest.read',
+            ]
+        )
+    lines.extend(
+        [
+            "",
             "    script = <<~PYTHON",
             "      import importlib.metadata",
             "      import json",

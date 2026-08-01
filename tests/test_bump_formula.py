@@ -274,6 +274,29 @@ class BumpFormulaTests(unittest.TestCase):
         self.assertIn('uses_from_macos "libxml2"', rendered)
         self.assertIn('uses_from_macos "libxslt"', rendered)
 
+    def test_unpacksort_formula_exercises_real_extraction_and_manifest(self) -> None:
+        resources = bump_formula.parse_locked_resources(
+            "unpacksort",
+            bump_formula.ReleaseVersion.parse("1.2.3"),
+            lock_fixture("unpacksort"),
+        )
+        rendered = bump_formula.render_formula(
+            "unpacksort",
+            bump_formula.ReleaseVersion.parse("1.2.3"),
+            bump_formula.Artifact(
+                "https://files.pythonhosted.org/packages/unpacksort-1.2.3.tar.gz",
+                "5" * 64,
+            ),
+            resources,
+            lock_url=LOCK_URL.replace("immich-export", "unpacksort"),
+            lock_sha256=LOCK_SHA256,
+        )
+        self.assertIn(
+            'system bin/"unpacksort", testpath/"source", testpath/"out"', rendered
+        )
+        self.assertIn('"unpacksort did not extract the fixture"', rendered)
+        self.assertIn('manifest = testpath/"out/manifest.jsonl"', rendered)
+
     def test_supported_lock_markers_match_cpython_312_targets(self) -> None:
         for marker in (
             "implementation_name != 'PyPy'",
