@@ -4,6 +4,7 @@ import json
 import os
 import tempfile
 import unittest
+from dataclasses import replace
 from pathlib import Path
 from unittest.mock import patch
 
@@ -101,8 +102,16 @@ class Response:
 
 
 class BumpFormulaTests(unittest.TestCase):
+    def test_ci_audits_every_supported_formula(self) -> None:
+        workflow = (
+            Path(__file__).parents[1] / ".github/workflows/ci.yml"
+        ).read_text(encoding="utf-8")
+        matrix = workflow.split("formula:", maxsplit=1)[1].split("\n    steps:", maxsplit=1)[0]
+        for formula in bump_formula.FORMULAS:
+            self.assertIn(formula, matrix)
+
     def test_exact_allowlist(self) -> None:
-        for allowed in ("immich-export", "paperless-export"):
+        for allowed in ("immich-export", "paperless-export", "unpacksort"):
             self.assertEqual(bump_formula.validate_formula(allowed), allowed)
         for rejected in ("other", "../immich-export", "Immich-export", "immich-export;id"):
             with self.assertRaises(bump_formula.BumpError):
@@ -242,6 +251,43 @@ class BumpFormulaTests(unittest.TestCase):
             self.assertIn(selector, first)
         self.assertIn("native-runtime", first)
         self.assertIn("PIP_NO_INDEX", first)
+        self.assertIn('.replace("_", "-").replace(".", "-")', first)
+
+    def test_generated_system_dependencies_follow_the_locked_resources(self) -> None:
+        resources = bump_formula.parse_locked_resources(
+            "paperless-export",
+            bump_formula.ReleaseVersion.parse("1.2.3"),
+            lock_fixture("paperless-export"),
+        )
+        resources[0] = replace(resources[0], name="lxml")
+        rendered = bump_formula.render_formula(
+            "paperless-export",
+            bump_formula.ReleaseVersion.parse("1.2.3"),
+            bump_formula.Artifact(
+                "https://files.pythonhosted.org/packages/paperless_export-1.2.3.tar.gz",
+                "5" * 64,
+            ),
+            resources,
+            lock_url=LOCK_URL.replace("immich-export", "paperless-export"),
+            lock_sha256=LOCK_SHA256,
+        )
+        self.assertIn('uses_from_macos "libxml2"', rendered)
+        self.assertIn('uses_from_macos "libxslt"', rendered)
+
+    def test_supported_lock_markers_match_cpython_312_targets(self) -> None:
+        for marker in (
+            "implementation_name != 'PyPy'",
+            "platform_python_implementation == 'CPython'",
+            "python_full_version < '3.14'",
+            "sys_platform != 'cygwin'",
+        ):
+            self.assertTrue(bump_formula._marker_supported(marker))
+        for marker in (
+            "os_name == 'nt'",
+            "platform_python_implementation == 'PyPy'",
+            "sys_platform == 'win32'",
+        ):
+            self.assertFalse(bump_formula._marker_supported(marker))
 
     def test_rejects_missing_wheels_duplicate_packages_and_mutable_lock_urls(self) -> None:
         invalid = lock_fixture().replace(

@@ -10,12 +10,14 @@ The unversioned Homebrew tap for the independently released `fileworks` CLIs.
 brew tap fileworks/tap
 brew install fileworks/tap/immich-export
 brew install fileworks/tap/paperless-export
+brew install fileworks/tap/unpacksort
 ```
 
 Current formula versions:
 
-- `immich-export`: `0.0.4`
-- `paperless-export`: `1.0.0`
+- `immich-export`: `0.2.0`
+- `paperless-export`: `1.2.0`
+- `unpacksort`: `1.1.0`
 
 ## Overview
 
@@ -28,6 +30,7 @@ its own; each formula tracks the product it installs.
 |---|---|---|
 | `immich-export` | Immich → local tree exporter | [fileworks/immich-export](https://github.com/fileworks/immich-export) |
 | `paperless-export` | Paperless-ngx exporter and tax view | [fileworks/paperless-export](https://github.com/fileworks/paperless-export) |
+| `unpacksort` | Safe nested-archive extraction and classification | [fileworks/unpacksort](https://github.com/fileworks/unpacksort) |
 
 Versions are listed above under Install and are bumped automatically by each
 product's release pipeline.
@@ -39,7 +42,7 @@ repository, workflow run, and immutable `uv.lock` URL/SHA-256 provenance. The
 tap validates that request, stores it as an inspectable GitHub issue labeled
 `formula-bump`, and only then starts the serialized drain.
 
-The drain always scans every open queue record. It accepts only the two known
+The drain always scans every open queue record. It accepts only the three known
 formulas, processes versions monotonically, validates the requested PyPI sdist
 and released lock digest, generates all supported macOS/Linux wheel resources,
 writes the complete formula atomically, and closes a record only after its
@@ -56,10 +59,9 @@ After correcting the cause, rerun any recent `bump` workflow from the Actions
 page; its surviving drain scans all open records, not only the triggering one.
 A reviewed manual formula PR is the emergency rollback/update path.
 
-The queue and formulas are covered by pull-request CI. The full downstream
-release chain will remain “tested but not yet observed” until the next warranted
-exporter release exercises it; no synthetic package version is created merely
-to prove automation.
+The queue and formulas are covered by pull-request CI. Each product release has
+exercised the downstream queue against immutable release and lock provenance;
+no synthetic package version is created merely to prove automation.
 
 ## Local contributor instructions
 

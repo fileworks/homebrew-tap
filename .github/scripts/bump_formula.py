@@ -95,6 +95,11 @@ CONFIGS: Mapping[str, FormulaConfig] = {
         homepage="https://github.com/fileworks/paperless-export",
         extra="pdf",
     ),
+    "unpacksort": FormulaConfig(
+        class_name="Unpacksort",
+        description="Safely unpack, deduplicate, classify, and sort nested archives",
+        homepage="https://github.com/fileworks/unpacksort",
+    ),
 }
 
 
@@ -226,8 +231,14 @@ def _marker_supported(marker: str | None) -> bool:
     if marker is None:
         return True
     decisions = {
+        "implementation_name != 'PyPy'": True,
+        "os_name == 'nt'": False,
+        "platform_python_implementation == 'CPython'": True,
+        "platform_python_implementation == 'PyPy'": False,
         "python_full_version < '3.13'": True,
+        "python_full_version < '3.14'": True,
         "python_full_version >= '3.13'": False,
+        "sys_platform != 'cygwin'": True,
         "sys_platform == 'win32'": False,
         "sys_platform != 'win32'": True,
         "sys_platform == 'darwin'": True,
@@ -448,7 +459,7 @@ def render_formula(
         '  depends_on "python@3.12"',
         "",
     ]
-    if package == "paperless-export":
+    if any(resource.name == "lxml" for resource in resources):
         lines.extend(
             [
                 '  uses_from_macos "libxml2"',
@@ -491,7 +502,7 @@ def render_formula(
             "      import sysconfig",
             "      site = pathlib.Path(sysconfig.get_paths()[\"purelib\"])",
             "      names = sorted(",
-            "          distribution.metadata[\"Name\"].lower().replace(\"_\", \"-\")",
+            "          distribution.metadata[\"Name\"].lower().replace(\"_\", \"-\").replace(\".\", \"-\")",
             "          for distribution in importlib.metadata.distributions(path=[site])",
             "      )",
             "      print(json.dumps(names))",
