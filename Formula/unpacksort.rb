@@ -336,11 +336,12 @@ class Unpacksort < Formula
     assert_match version.to_s, shell_output("#{bin}/unpacksort --version")
     assert_match "Usage", shell_output("#{bin}/unpacksort --help")
 
+    (testpath/"fixture").mkpath
+    (testpath/"fixture/hello.txt").write("hello from the formula test\n")
     (testpath/"source").mkpath
-    (testpath/"source/hello.txt").write("hello from the formula test\n")
-    system "tar", "-czf", testpath/"fixture.tar.gz",
-           "-C", testpath/"source", "hello.txt"
-    system bin/"unpacksort", testpath/"fixture.tar.gz", testpath/"out"
+    system "tar", "-czf", testpath/"source/fixture.tar.gz",
+           "-C", testpath/"fixture", "hello.txt"
+    system bin/"unpacksort", testpath/"source", testpath/"out"
 
     extracted = Dir.glob("#{testpath}/out/**/hello.txt").first
     refute_nil extracted, "unpacksort did not extract the fixture"

@@ -291,7 +291,9 @@ class BumpFormulaTests(unittest.TestCase):
             lock_url=LOCK_URL.replace("immich-export", "unpacksort"),
             lock_sha256=LOCK_SHA256,
         )
-        self.assertIn('system bin/"unpacksort", testpath/"fixture.tar.gz"', rendered)
+        self.assertIn(
+            'system bin/"unpacksort", testpath/"source", testpath/"out"', rendered
+        )
         self.assertIn('"unpacksort did not extract the fixture"', rendered)
         self.assertIn('manifest = testpath/"out/manifest.jsonl"', rendered)
 
