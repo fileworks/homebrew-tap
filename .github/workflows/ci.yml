@@ -31,7 +31,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-latest, ubuntu-latest]
+        # Keep both supported macOS architectures explicit. `macos-15` is
+        # Apple Silicon; `macos-15-intel` is the hosted x86_64 image.
+        os: [macos-15, macos-15-intel, ubuntu-latest]
         formula: [immich-export, paperless-export, unpacksort]
     steps:
       - uses: actions/checkout@v7
@@ -56,7 +58,22 @@ jobs:
           brew tap --custom-remote fileworks/tap "$GITHUB_WORKSPACE"
           brew audit --strict "fileworks/tap/${{ matrix.formula }}"
           brew style "fileworks/tap/${{ matrix.formula }}"
-      # macOS only, deliberately. There is no Linux bottle for a tap formula, so
+      # The Intel image also exposes its python.org toolcache under /usr/local.
+      # It collides with Homebrew's python@3.12 link step and can leave the
+      # Homebrew interpreter with a mismatched pip package. Install the formula
+      # dependency first, let Homebrew replace only its own command links, and
+      # prove that the exact interpreter the formulas use is self-consistent.
+      - name: Prepare Homebrew Python on the Intel runner
+        if: matrix.os == 'macos-15-intel'
+        run: |
+          if ! brew install python@3.12; then
+            brew list --versions python@3.12
+          fi
+          brew link --overwrite python@3.12
+          brew postinstall python@3.12
+          "$(brew --prefix python@3.12)/bin/python3.12" -m pip --version
+      # macOS only, deliberately. These are source formulas, not bottles. There
+      # is no Linux bottle for a tap formula, so
       # --build-from-source pulls rust, llvm and three Pythons, and the runner
       # denies bubblewrap's uid map inside Homebrew's build sandbox. That leg has
       # never succeeded; it was written on a branch that was never merged.
@@ -74,6 +91,10 @@ jobs:
           PIP_INDEX_URL: "http://127.0.0.1:9/package-index-access-is-forbidden"
           PIP_NO_INDEX: "1"
         run: |
+          case "${{ matrix.os }}" in
+            macos-15) test "$(uname -m)" = arm64 ;;
+            macos-15-intel) test "$(uname -m)" = x86_64 ;;
+          esac
           brew fetch --deps "fileworks/tap/${{ matrix.formula }}"
           brew fetch --build-from-source "fileworks/tap/${{ matrix.formula }}"
           brew install --build-from-source "fileworks/tap/${{ matrix.formula }}"
