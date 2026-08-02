@@ -1,13 +1,13 @@
 # This file is generated atomically by .github/scripts/bump_formula.py.
-# Runtime lock: https://raw.githubusercontent.com/fileworks/paperless-export/bbfbdf04fd6e46e8790bd84a7a424b7b14f7ba38/uv.lock
-# Runtime lock SHA-256: 0d5acc50b2b6683529239019951ba9b862be308002a77f38ea3cd50b95565aa4
+# Runtime lock: https://raw.githubusercontent.com/fileworks/paperless-export/68eab8be7a89b20e6c2c5643415fb142ffef2a46/uv.lock
+# Runtime lock SHA-256: 6fcccca7d39cceabc5fb741aee47ed8b8713ea985805c786936fc9fbabfb8744
 class PaperlessExport < Formula
   include Language::Python::Virtualenv
 
   desc "Paperless-ngx export wrapper and atomic tax view"
   homepage "https://github.com/fileworks/paperless-export"
-  url "https://files.pythonhosted.org/packages/0a/cb/2397651bebf82a05fc010852447eca93e6919959096d1325b0b8cdc50f18/paperless_export-1.2.0.tar.gz"
-  sha256 "b4cef6ab20c79612d9b31abcd92e570e000b393b58573556863acf2000a85f3e"
+  url "https://files.pythonhosted.org/packages/73/09/dc3673e7169028be7c539d93f8d673edd4959f3d0586f320dce4525f5d6a/paperless_export-1.2.2.tar.gz"
+  sha256 "7ae779d7a6fafdba4582a5c3621a1681fa827f3ec84cfc1e7619d06b5c01ce87"
   license "MIT"
 
   depends_on "hatch" => :build
@@ -24,8 +24,8 @@ class PaperlessExport < Formula
       end
 
       resource "pikepdf" do
-        url "https://files.pythonhosted.org/packages/3b/b3/61b86a9e11a85ea579ca3d9465e6ddfea79f4baf6be17f7b244569b9bcdb/pikepdf-10.9.1-cp312-cp312-macosx_14_0_arm64.whl"
-        sha256 "cdc7520523da4966c7afabed20b6c57bc87de74e5e21d0e193b010495fb8f881"
+        url "https://files.pythonhosted.org/packages/8a/94/a30157ea052c9f8c8c5fee97dceba09f374dd564ed91fa8b8d9c48cfb622/pikepdf-10.10.0-cp312-cp312-macosx_14_0_arm64.whl"
+        sha256 "ccfa2288bbc206bfe7197f8614ee20de902e511ff968da86bebf814280124156"
       end
 
       resource "pillow" do
@@ -45,8 +45,8 @@ class PaperlessExport < Formula
       end
 
       resource "pikepdf" do
-        url "https://files.pythonhosted.org/packages/ca/7a/01679a404d198170785211b6dd32fd5cab25f3f952e5dececd8e1525b4a6/pikepdf-10.9.1-cp312-cp312-macosx_15_0_x86_64.whl"
-        sha256 "08d2bee9fd5d7a32530cc2b0bd167600a0a296e4445823469b98f20907881bd6"
+        url "https://files.pythonhosted.org/packages/bc/86/313554efb00675f6e9b75bf012368e7c114174680f1c13035eba6e4a75de/pikepdf-10.10.0-cp312-cp312-macosx_15_0_x86_64.whl"
+        sha256 "19c14b76a240f3cd067abc77b62843268d56dce45b7787ea70fd8cceb11cc5dc"
       end
 
       resource "pillow" do
@@ -69,8 +69,8 @@ class PaperlessExport < Formula
       end
 
       resource "pikepdf" do
-        url "https://files.pythonhosted.org/packages/ee/46/62ecb0480f4c1002d2183609a27df290301e2161fd062152e94bb281d522/pikepdf-10.9.1-cp312-cp312-manylinux_2_26_aarch64.manylinux_2_28_aarch64.whl"
-        sha256 "0ea24f7f1756a7832fc7e27c9c4e1d7c98c1b847c00c3833299c5c03cf15399c"
+        url "https://files.pythonhosted.org/packages/a3/b6/0cceaa5a1084730154e8e948b181d2eee2f7f2f3a110b919263ea29e4a0a/pikepdf-10.10.0-cp312-cp312-manylinux_2_26_aarch64.manylinux_2_28_aarch64.whl"
+        sha256 "81c938b33db9f32b7f419f06dbb97eca3e2629c57c0b18a7b719d81563c48d3f"
       end
 
       resource "pillow" do
@@ -90,8 +90,8 @@ class PaperlessExport < Formula
       end
 
       resource "pikepdf" do
-        url "https://files.pythonhosted.org/packages/a4/e1/6683d947603398d4db11e6ee4fdf2323f3fd7ffa3c6ad06995f213e2b736/pikepdf-10.9.1-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl"
-        sha256 "3836fc0547af990a2b8a37cda63526ef095dd36b4599cf28cda070a9994241ef"
+        url "https://files.pythonhosted.org/packages/46/b0/fc1e0e3f0a6a652f71387c4f9061457202369e98074def130f15173a7a6c/pikepdf-10.10.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl"
+        sha256 "feccd53d5620c908fbb79399b2daee9103dee27d744bc80946daca22500be90f"
       end
 
       resource "pillow" do
@@ -182,8 +182,8 @@ class PaperlessExport < Formula
   end
 
   resource "typer" do
-    url "https://files.pythonhosted.org/packages/80/87/b9fd69c92c6102a066e1b86a35243f53e70bd4c709f2a26d9f4fee4f4dc0/typer-0.26.8-py3-none-any.whl"
-    sha256 "3512ca79ac5c11113414b36e80281b872884477722440691c89d1112e321a49c"
+    url "https://files.pythonhosted.org/packages/40/03/26a383c9e58c213199d1aad1c3d353cfc22d4444ec6d2c0bf8ad02523843/typer-0.27.0-py3-none-any.whl"
+    sha256 "6f4b27631e47f077871b7dc30e933ec0131c1390fbe0e387ea5574b5bac9ccf1"
   end
 
   resource "typing-extensions" do
@@ -225,6 +225,7 @@ class PaperlessExport < Formula
   test do
     assert_match version.to_s, shell_output("#{bin}/paperless-export --version")
     assert_match "Usage", shell_output("#{bin}/paperless-export --help")
+
     script = <<~PYTHON
       import importlib.metadata
       import json
@@ -232,7 +233,7 @@ class PaperlessExport < Formula
       import sysconfig
       site = pathlib.Path(sysconfig.get_paths()["purelib"])
       names = sorted(
-          distribution.metadata["Name"].lower().replace("_", "-")
+          distribution.metadata["Name"].lower().replace("_", "-").replace(".", "-")
           for distribution in importlib.metadata.distributions(path=[site])
       )
       print(json.dumps(names))
