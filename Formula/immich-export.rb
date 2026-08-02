@@ -1,13 +1,13 @@
 # This file is generated atomically by .github/scripts/bump_formula.py.
-# Runtime lock: https://raw.githubusercontent.com/fileworks/immich-export/82a0ec57d480d67b034360e9316ae3369df7e59e/uv.lock
-# Runtime lock SHA-256: 664b5a9026454f33fe83259b786c0f63bc8aedda9a830077e7900a2e7651eff5
+# Runtime lock: https://raw.githubusercontent.com/fileworks/immich-export/1d877fe666ba3a5d3b70d1d42e253131fcc9b14a/uv.lock
+# Runtime lock SHA-256: b638de94101fbc7546ec472d581a526dc5326e300d08d71a785092763f9aa85e
 class ImmichExport < Formula
   include Language::Python::Virtualenv
 
   desc "Export Immich into a plain, human-readable folder tree"
   homepage "https://github.com/fileworks/immich-export"
-  url "https://files.pythonhosted.org/packages/f5/28/82e6084e8504363c75e6d4bfe55397e90ef37377c3511948ebfc94c96bfe/immich_export-0.2.0.tar.gz"
-  sha256 "68feafd6decbd320b530aea4978bcc2177561af2e18055a3a5efdb9da4cfb00a"
+  url "https://files.pythonhosted.org/packages/cc/0a/e93bd10981bc8409c0265fbe1a14cd17ec6632c588a4b9665729252d5932/immich_export-0.2.1.tar.gz"
+  sha256 "0c5a2a8772c723ee42a7ca670f498f2088d768add26ba2a23d694752ffe60ae6"
   license "MIT"
 
   depends_on "hatch" => :build
@@ -156,6 +156,7 @@ class ImmichExport < Formula
   test do
     assert_match version.to_s, shell_output("#{bin}/immich-export --version")
     assert_match "Usage", shell_output("#{bin}/immich-export --help")
+
     script = <<~PYTHON
       import importlib.metadata
       import json
@@ -163,7 +164,7 @@ class ImmichExport < Formula
       import sysconfig
       site = pathlib.Path(sysconfig.get_paths()["purelib"])
       names = sorted(
-          distribution.metadata["Name"].lower().replace("_", "-")
+          distribution.metadata["Name"].lower().replace("_", "-").replace(".", "-")
           for distribution in importlib.metadata.distributions(path=[site])
       )
       print(json.dumps(names))
