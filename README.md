@@ -13,11 +13,9 @@ brew install fileworks/tap/paperless-export
 brew install fileworks/tap/unpacksort
 ```
 
-Current formula versions:
-
-- `immich-export`: `0.2.0`
-- `paperless-export`: `1.2.0`
-- `unpacksort`: `1.1.0`
+Inspect the live version and dependency metadata with
+`brew info fileworks/tap/<formula>`; release automation updates formulas
+independently, so this tap does not maintain a duplicate static version list.
 
 ## Overview
 
@@ -32,8 +30,7 @@ its own; each formula tracks the product it installs.
 | `paperless-export` | Paperless-ngx exporter and tax view | [fileworks/paperless-export](https://github.com/fileworks/paperless-export) |
 | `unpacksort` | Safe nested-archive extraction and classification | [fileworks/unpacksort](https://github.com/fileworks/unpacksort) |
 
-Versions are listed above under Install and are bumped automatically by each
-product's release pipeline.
+Versions are bumped automatically by each product's release pipeline.
 
 ## Safe release queue
 
@@ -62,6 +59,12 @@ A reviewed manual formula PR is the emergency rollback/update path.
 The queue and formulas are covered by pull-request CI. Each product release has
 exercised the downstream queue against immutable release and lock provenance;
 no synthetic package version is created merely to prove automation.
+
+## Dependency maintenance
+
+Renovate inherits the shared fileworks weekly grouping and automerge policy.
+This repository permits only one Renovate branch and pull request at a time, so
+dependency maintenance cannot form a stacked queue.
 
 ## Local contributor instructions
 
