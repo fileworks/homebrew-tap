@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640" role="img" aria-labelledby="title description">
+  <title id="title">homebrew-tap · Fileworks</title>
+  <desc id="description">Official Homebrew formulas for Fileworks command-line tools.</desc>
+  <rect width="1280" height="640" fill="#FAF7F2"/>
+  <rect x="72" y="72" width="1136" height="496" rx="32" fill="#FFFFFF" stroke="#E6E3E0" stroke-width="2"/>
+  <svg x="112" y="108" width="128" height="128" viewBox="0 0 32 32" aria-hidden="true">
+    <g fill="none" stroke="#2A251F" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 11.2h12.2v4.6M14.8 15.8h7M11.8 11.2V7.6M9.4 7.6h4.8"/><path stroke="#E8582A" d="M18.4 19.6c2 2.2 3.1 3.5 3.1 4.7a3.1 3.1 0 1 1-6.2 0c0-1.2 1.1-2.5 3.1-4.7z"/></g>
+  </svg>
+  <text x="274" y="159" fill="#C2410C" font-family="Geist Sans,system-ui,sans-serif" font-size="24" font-weight="700" letter-spacing="2">FILEWORKS</text>
+  <text x="274" y="220" fill="#14110F" font-family="Geist Sans,system-ui,sans-serif" font-size="52" font-weight="650">homebrew-tap</text>
+  <text x="112" y="354" fill="#221E1C" font-family="Geist Sans,system-ui,sans-serif" font-size="31" font-weight="500">Official Homebrew formulas for Fileworks command-line tools.</text>
+  <path d="M112 410H1168" stroke="#E6E3E0" stroke-width="2"/>
+  <g>
+    <text x="112" y="461" fill="#C2410C" font-family="Geist Sans,system-ui,sans-serif" font-size="14" font-weight="700" letter-spacing="1.8">TYPE</text>
+    <text x="112" y="500" fill="#655D58" font-family="Geist Sans,system-ui,sans-serif" font-size="22" font-weight="500">Package repository</text>
+    <text x="456" y="461" fill="#C2410C" font-family="Geist Sans,system-ui,sans-serif" font-size="14" font-weight="700" letter-spacing="1.8">COMMAND</text>
+    <text x="456" y="500" fill="#655D58" font-family="Geist Mono,ui-monospace,monospace" font-size="22" font-weight="500">brew tap fileworks/tap</text>
+    <text x="800" y="461" fill="#C2410C" font-family="Geist Sans,system-ui,sans-serif" font-size="14" font-weight="700" letter-spacing="1.8">CONTENT</text>
+    <text x="800" y="500" fill="#655D58" font-family="Geist Sans,system-ui,sans-serif" font-size="22" font-weight="500">3 maintained formulas</text>
+  </g>
+</svg>
