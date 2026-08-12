@@ -1,13 +1,13 @@
 # This file is generated atomically by .github/scripts/bump_formula.py.
-# Runtime lock: https://raw.githubusercontent.com/fileworks/unpacksort/ea8b7b1f08aee7389bb261fd781196c985beea52/uv.lock
-# Runtime lock SHA-256: e79f7c52e24a46d0721c332d54cb3fce3d4b9238b507677ff428ed6062285972
+# Runtime lock: https://raw.githubusercontent.com/fileworks/unpacksort/24d116b52050ac744b02ed0bceeaa3ab12d8e866/uv.lock
+# Runtime lock SHA-256: 2988ce4993fe81866f58eff277450422c314eedf1c5e23b8bd4c5dba1013b87d
 class Unpacksort < Formula
   include Language::Python::Virtualenv
 
   desc "Safely unpack, deduplicate, classify, and sort nested archives"
   homepage "https://github.com/fileworks/unpacksort"
-  url "https://files.pythonhosted.org/packages/6a/42/679d407724e6663113ea23293a72f34e4ad094e4c7edd52bfd2e14edaab7/unpacksort-1.1.2.tar.gz"
-  sha256 "e4791d8a5ddea7c3c9771707770e0983f0d4d1fbfdc6e4c38e56a200e92faa39"
+  url "https://files.pythonhosted.org/packages/5b/56/0db6579e4461729dad4be911e666ea3ffb201e49abddf9c74262b2536f38/unpacksort-1.1.3.tar.gz"
+  sha256 "9523680ed43f7535f1caa7639837e724f23eefa42a3c9cc5aceef89b94db977d"
   license "MIT"
 
   depends_on "hatch" => :build
@@ -39,8 +39,8 @@ class Unpacksort < Formula
       end
 
       resource "pikepdf" do
-        url "https://files.pythonhosted.org/packages/8a/94/a30157ea052c9f8c8c5fee97dceba09f374dd564ed91fa8b8d9c48cfb622/pikepdf-10.10.0-cp312-cp312-macosx_14_0_arm64.whl"
-        sha256 "ccfa2288bbc206bfe7197f8614ee20de902e511ff968da86bebf814280124156"
+        url "https://files.pythonhosted.org/packages/5f/ff/ddfa7fbe048064805228de88d71c73e643020ff1134003ea78b3781a7b5b/pikepdf-10.11.0-cp312-cp312-macosx_14_0_arm64.whl"
+        sha256 "ff3bb790373f8799a33f4c36ec955074d34e9b163652dc837263970a93a46152"
       end
 
       resource "pillow" do
@@ -95,8 +95,8 @@ class Unpacksort < Formula
       end
 
       resource "pikepdf" do
-        url "https://files.pythonhosted.org/packages/bc/86/313554efb00675f6e9b75bf012368e7c114174680f1c13035eba6e4a75de/pikepdf-10.10.0-cp312-cp312-macosx_15_0_x86_64.whl"
-        sha256 "19c14b76a240f3cd067abc77b62843268d56dce45b7787ea70fd8cceb11cc5dc"
+        url "https://files.pythonhosted.org/packages/d7/85/47610c84a0925ca149245ba19c0cbbc8bf95430c250eae71e818f7ae3615/pikepdf-10.11.0-cp312-cp312-macosx_15_0_x86_64.whl"
+        sha256 "305e701bcb5c05009e431ec71399e9cc08313baf0f4974f2267db94de087c129"
       end
 
       resource "pillow" do
@@ -154,8 +154,8 @@ class Unpacksort < Formula
       end
 
       resource "pikepdf" do
-        url "https://files.pythonhosted.org/packages/a3/b6/0cceaa5a1084730154e8e948b181d2eee2f7f2f3a110b919263ea29e4a0a/pikepdf-10.10.0-cp312-cp312-manylinux_2_26_aarch64.manylinux_2_28_aarch64.whl"
-        sha256 "81c938b33db9f32b7f419f06dbb97eca3e2629c57c0b18a7b719d81563c48d3f"
+        url "https://files.pythonhosted.org/packages/b9/56/98d288f064b9f1dee4a103206f8a48a9d5b134fc69a269fb0eaa5501b016/pikepdf-10.11.0-cp312-cp312-manylinux_2_26_aarch64.manylinux_2_28_aarch64.whl"
+        sha256 "1952d7cd75236a18fc85b5a115298635f8cbb6d7d96784af4c490536076b47e4"
       end
 
       resource "pillow" do
@@ -210,8 +210,8 @@ class Unpacksort < Formula
       end
 
       resource "pikepdf" do
-        url "https://files.pythonhosted.org/packages/46/b0/fc1e0e3f0a6a652f71387c4f9061457202369e98074def130f15173a7a6c/pikepdf-10.10.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl"
-        sha256 "feccd53d5620c908fbb79399b2daee9103dee27d744bc80946daca22500be90f"
+        url "https://files.pythonhosted.org/packages/1b/64/dcf45d018a56bf1f91499290c2b9c27f6a3b4abefb60c00bf8b1d4917112/pikepdf-10.11.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl"
+        sha256 "950ed9258afdc618dbcd15b3d12ed37b33a8e7441211e9a04988cbd6a1e0f187"
       end
 
       resource "pillow" do
@@ -247,8 +247,8 @@ class Unpacksort < Formula
   end
 
   resource "annotated-doc" do
-    url "https://files.pythonhosted.org/packages/1e/d3/26bf1008eb3d2daa8ef4cacc7f3bfdc11818d111f7e2d0201bc6e3b49d45/annotated_doc-0.0.4-py3-none-any.whl"
-    sha256 "571ac1dc6991c450b25a9c2d84a3705e2ae7a53467b5d111c24fa8baabbed320"
+    url "https://files.pythonhosted.org/packages/3e/30/e900b21425a860e195f32e37657aa1f7c7f2b1bfb26f03ca209b90933c06/annotated_doc-0.0.5-py3-none-any.whl"
+    sha256 "117bac03a25ede5df5440e855b32d556049ca169ead221505badf432fed4b101"
   end
 
   resource "click" do
@@ -272,8 +272,8 @@ class Unpacksort < Formula
   end
 
   resource "packaging" do
-    url "https://files.pythonhosted.org/packages/df/b2/87e62e8c3e2f4b32e5fe99e0b86d576da1312593b39f47d8ceef365e95ed/packaging-26.2-py3-none-any.whl"
-    sha256 "5fc45236b9446107ff2415ce77c807cee2862cb6fac22b8a73826d0693b0980e"
+    url "https://files.pythonhosted.org/packages/63/34/ba1c580383c9eada3711951fef0795c80b829a078d72188184bcab9dd527/packaging-26.3-py3-none-any.whl"
+    sha256 "d7193f7c8e4e93f444fde0262bf90af30e16fa0ad0ad44cb553c87339b23cd1c"
   end
 
   resource "py7zr" do
@@ -302,8 +302,8 @@ class Unpacksort < Formula
   end
 
   resource "typer" do
-    url "https://files.pythonhosted.org/packages/40/03/26a383c9e58c213199d1aad1c3d353cfc22d4444ec6d2c0bf8ad02523843/typer-0.27.0-py3-none-any.whl"
-    sha256 "6f4b27631e47f077871b7dc30e933ec0131c1390fbe0e387ea5574b5bac9ccf1"
+    url "https://files.pythonhosted.org/packages/43/89/9518bc0c3929bee36b3a4a8e3daddd6e03f92f9961c66d4983b837160543/typer-0.27.1-py3-none-any.whl"
+    sha256 "53150287edd11baeb4e4722c8e394fcdf8181c0ae89485cba8d25c778d5edd56"
   end
 
   RUNTIME_INVENTORY = %w[
