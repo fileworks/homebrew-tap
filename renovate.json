@@ -1,8 +1,4 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["github>fileworks/maintenance:renovate-policy"],
-  "branchConcurrentLimit": 1,
-  "prConcurrentLimit": 1,
-  "groupName": "weekly dependency updates",
-  "separateMajorMinor": false
+  "extends": ["github>fileworks/maintenance:renovate-policy"]
 }
