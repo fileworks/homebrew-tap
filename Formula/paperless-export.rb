@@ -1,13 +1,13 @@
 # This file is generated atomically by .github/scripts/bump_formula.py.
-# Runtime lock: https://raw.githubusercontent.com/fileworks/paperless-export/fdd09c32f3fb16bddcef31b5831ea05a5c3bd302/uv.lock
-# Runtime lock SHA-256: 9dcc09c8e80ccea6d33dd4e74edb10aa3a545ee033e15d61558d8c58338cd6d6
+# Runtime lock: https://raw.githubusercontent.com/fileworks/paperless-export/abe071ad437caca697c67b81555d50f6e1b8399f/uv.lock
+# Runtime lock SHA-256: 3554e6cc59113419b19ac9aa1901f11520921c5b0525f0b68f8e0f83d3dfc5e8
 class PaperlessExport < Formula
   include Language::Python::Virtualenv
 
   desc "Paperless-ngx export wrapper and atomic tax view"
   homepage "https://github.com/fileworks/paperless-export"
-  url "https://files.pythonhosted.org/packages/f4/46/31588130f6674a7776edf87e8a45ea8637b8ff721e345a55e9e9499cc353/paperless_export-2.0.0.tar.gz"
-  sha256 "8cc7772001893af23513f1feb925752a8d82168d21f8456dda7f29e3fd5f7c88"
+  url "https://files.pythonhosted.org/packages/6c/77/798f2f1e4e9a4576e5a8bb3d41541f5de1d842d114063930a3481755d769/paperless_export-2.0.1.tar.gz"
+  sha256 "7a325df7edc38f61e3577d5e7093d4f615d36601469837ef28fd574cc4e97d18"
   license "MIT"
 
   depends_on "hatch" => :build
