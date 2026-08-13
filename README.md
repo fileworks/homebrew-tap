@@ -62,9 +62,10 @@ no synthetic package version is created merely to prove automation.
 
 ## Dependency maintenance
 
-Renovate inherits the shared fileworks weekly grouping and automerge policy.
-This repository permits only one Renovate branch and pull request at a time, so
-dependency maintenance cannot form a stacked queue.
+Renovate inherits the shared fileworks policy: routine non-major updates form
+one Monday pull request and are squash-merged only after all checks pass. Only
+one dependency branch can exist at a time. Major, replacement, and rollback
+updates require explicit Dependency Dashboard approval and never auto-merge.
 
 ## Local contributor instructions
 
