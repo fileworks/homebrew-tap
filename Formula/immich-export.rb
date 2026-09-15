@@ -1,13 +1,13 @@
 # This file is generated atomically by .github/scripts/bump_formula.py.
-# Runtime lock: https://raw.githubusercontent.com/fileworks/immich-export/b66cddacbc8236e3d4f4f19c926286bd1669f706/uv.lock
-# Runtime lock SHA-256: 9265db5ce098f82bf9d95990ae8bf58e381ca51190360da4416c8d25a4dcde76
+# Runtime lock: https://raw.githubusercontent.com/fileworks/immich-export/04caa18952b061e285d23048f8957ee9d8ed1774/uv.lock
+# Runtime lock SHA-256: 198d71abea4026be35f5967645bc8cad83d75e36845539b084d5c6eeed394f57
 class ImmichExport < Formula
   include Language::Python::Virtualenv
 
   desc "Export Immich into a plain, human-readable folder tree"
   homepage "https://github.com/fileworks/immich-export"
-  url "https://files.pythonhosted.org/packages/ba/4f/53717eca9544acbe5da3f460bb29f16c052909c55c3e6d519ef35f1f5f7b/immich_export-1.0.1.tar.gz"
-  sha256 "ce089222d6d58fd666482212838ed689ffe6d83c49ad9f75aa2af8969c4dc28b"
+  url "https://files.pythonhosted.org/packages/0f/88/b24f2cf86aa848921807807119293aa828cb8e462e32b76b871247fca7c1/immich_export-1.0.2.tar.gz"
+  sha256 "7f3ef843b6093658179e3e087b1b4ad82485c271c67ef8e1710cfe57fb60ad86"
   license "MIT"
 
   depends_on "hatch" => :build
