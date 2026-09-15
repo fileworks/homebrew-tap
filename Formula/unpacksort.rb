@@ -1,13 +1,13 @@
 # This file is generated atomically by .github/scripts/bump_formula.py.
-# Runtime lock: https://raw.githubusercontent.com/fileworks/unpacksort/e9eb881cfb45330f961f120709134777178fa11e/uv.lock
-# Runtime lock SHA-256: a7ea5f4c1801e80eae73c8b76e1b0d4ead3413f9c6aef996911ef879a8f26771
+# Runtime lock: https://raw.githubusercontent.com/fileworks/unpacksort/39270ae192d7a69600fb666249676dcbb42585b2/uv.lock
+# Runtime lock SHA-256: e057a9312a88a6a63b339e4eca933052937e2c007901627121cf471974a3bdbc
 class Unpacksort < Formula
   include Language::Python::Virtualenv
 
   desc "Safely unpack, deduplicate, classify, and sort nested archives"
   homepage "https://github.com/fileworks/unpacksort"
-  url "https://files.pythonhosted.org/packages/7c/18/eb40cb093ec67f2f6abfe0ab24b82c936c42686e94500b2ab3febb7022c7/unpacksort-1.1.7.tar.gz"
-  sha256 "2058b9aaa0384e522e08b68677fe77158b75cd326d0879fc855a57becc49ae97"
+  url "https://files.pythonhosted.org/packages/56/1a/722ac5258f7e96f2ba5b4b7fc689ed89c6f9cea8072d26b52d603f9d544f/unpacksort-1.1.8.tar.gz"
+  sha256 "e8cdc4146611af090352eb3e89ee66cdc4f8e9f780caf167e177fdc76480142e"
   license "MIT"
 
   depends_on "hatch" => :build
