@@ -560,11 +560,14 @@ def atomic_write(path: Path, text: str) -> None:
             os.chmod(temporary, path.stat().st_mode)
         os.replace(temporary, path)
         temporary = None
-        directory_fd = os.open(path.parent, os.O_RDONLY)
-        try:
-            os.fsync(directory_fd)
-        finally:
-            os.close(directory_fd)
+        # Windows cannot open a directory through the CRT. File fsync and
+        # atomic replacement still apply; POSIX also synchronizes the entry.
+        if os.name != "nt":
+            directory_fd = os.open(path.parent, os.O_RDONLY)
+            try:
+                os.fsync(directory_fd)
+            finally:
+                os.close(directory_fd)
     except OSError as exc:
         raise BumpError(f"Could not atomically update {path}: {exc}") from exc
     finally:
